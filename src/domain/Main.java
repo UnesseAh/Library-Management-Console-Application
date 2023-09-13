@@ -220,24 +220,16 @@ public class Main {
     private static void returnBook() throws SQLException {
         System.out.println("Enter the ISBN of the book :");
         String isbn = scanner.nextLine();
-        if(bookService.isBookExists(isbn)){
-            System.out.println("Enter the member Code");
-            int memberNumber = scanner.nextInt();
-            scanner.nextLine();
-            scanner.close();
-            if(memberService.isMemberExists(memberNumber)) {
-                int memberId = memberService.getMemberId(memberNumber);
-                int test = reservationService.returnBook(isbn, memberId);
-                System.out.println("Book returned successfully!");
-            }else {
-                System.out.println("There is no member with the provided member number");
-            }
-        }else {
-            System.out.println("There is no book with the provided ISBN");
-        }
+        System.out.println("Enter the member Code");
+        int memberNumber = scanner.nextInt();
+        scanner.nextLine();
+
+        reservationService.returnBook(isbn, memberNumber);
+        System.out.println("Book returned successfully.");
+
     }
     private static void showStatistics() throws SQLException {
-        copyRepository.displaystatistics();
         System.out.println("Statistics");
+        copyRepository.displaystatistics();
     }
 }

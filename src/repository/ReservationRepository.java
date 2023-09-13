@@ -20,7 +20,7 @@ public class ReservationRepository {
     }
 
     public int returnBook (String isbn, int memberId) throws SQLException {
-        String query = "SELECT reservation.id FROM bookcopy INNER JOIN book ON book.id = bookcopy.book_id INNER JOIN reservation ON reservation.copy_id = bookcopy.id WHERE reservation.member_id = ? AND reservation.copy_id IN (SELECT bookcopy.id FROM bookcopy  INNER JOIN book ON book.id = bookcopy.book_id WHERE book.isbn = ?)";
+        String query = "SELECT reservation.id FROM bookcopy INNER JOIN book ON book.id = bookcopy.book_id INNER JOIN reservation ON reservation.copy_id = bookcopy.id WHERE reservation.member_id = ? AND reservation.copy_id IN (SELECT bookcopy.id FROM bookcopy INNER JOIN book ON book.id = bookcopy.book_id WHERE book.isbn = ?)";
         PreparedStatement statement = dbConnection.getConnection().prepareStatement(query);
         statement.setInt(1, memberId);
         statement.setString(2, isbn);

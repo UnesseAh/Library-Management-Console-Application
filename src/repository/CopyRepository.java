@@ -44,14 +44,16 @@ public class CopyRepository {
             int notAvailable = resultSet.getInt("not_available");
             int lost = resultSet.getInt("lost");
 
-            System.out.println("available :" + available);
-            System.out.println("not available :" + notAvailable);
-            System.out.println("lost : " + lost);
+            System.out.println("Statistics");
+            System.out.println("--------------------");
+            System.out.format("%-15s %s%n", "Status", "Count");
+            System.out.println("--------------------");
+            System.out.format("%-15s %d%n", "Available", available);
+            System.out.format("%-15s %d%n", "Not Available", notAvailable);
+            System.out.format("%-15s %d%n", "Lost", lost);
+            System.out.println("--------------------");
+
         }
-
-
-
-
     }
 }
 

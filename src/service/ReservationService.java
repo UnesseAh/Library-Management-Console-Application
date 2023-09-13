@@ -41,7 +41,18 @@ public class ReservationService {
         }
     }
 
-    public int returnBook (String isbn, int memberId) throws SQLException {
-        return reservationRepository.returnBook(isbn, memberId);
+    public int returnBook (String isbn, int memberNumber) throws SQLException {
+
+        if(bookRepository.isBookExists(isbn)){
+            if(memberRepository.isMemberExists(memberNumber)) {
+                int memberId = memberRepository.getMemberId(memberNumber);
+                return reservationRepository.returnBook(isbn, memberId);
+            }else {
+                System.out.println("There is no member with the provided member number");
+            }
+        }else {
+            System.out.println("There is no book with the provided ISBN");
+        }
+        return 0;
     }
 }
