@@ -90,8 +90,8 @@ public class BookService {
         return bookRepository.getAllBorrowedBooks();
     }
 
-    public List<Book> searchBook(String title) throws SQLException{
-        return bookRepository.searchBook(title);
+    public List<Book> searchBook(String titleOrAuthor) throws SQLException{
+        return bookRepository.searchBook(titleOrAuthor);
     }
 
 }

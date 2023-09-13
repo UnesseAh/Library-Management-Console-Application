@@ -183,31 +183,22 @@ public class Main {
     }
 
     private static void searchBook() throws SQLException{
-        System.out.println("Search for book by title or author : ");
+        System.out.println("Search for books by title or author : ");
+        String titleOrAuthor = scanner.nextLine();
 
-        int searchChoice = scanner.nextInt();
-        scanner.nextLine();
+        List<Book> foundedBooks = bookService.searchBook(titleOrAuthor);
 
-        if( searchChoice == 1 ){
-            System.out.println("Enter the title of the book you want to search for");
-            String title = scanner.nextLine();
-            scanner.close();
 
-            List<Book> foundedBooks = bookService.searchBook(title);
-
-            if(foundedBooks.isEmpty()){
-                System.out.println("No books found.");
-            }else {
-                for(Book book : foundedBooks) {
-                    System.out.println("Title :" + book.getTitle());
-                    System.out.println("Author ID :" + book.getAuthor());
-                    System.out.println("ISBN :" + book.getIsbn());
-                    System.out.println("Quantity :" + book.getQuantity());
-                    System.out.println("+++++++++++++++++++++++++++++");
-                }
-            }
+        if(foundedBooks.isEmpty()){
+            System.out.println("No books found.");
         }else {
-            System.out.println("You want to search by author");
+            for(Book book : foundedBooks) {
+                System.out.println("Title :" + book.getTitle());
+                System.out.println("Author ID :" + book.getAuthor());
+                System.out.println("ISBN :" + book.getIsbn());
+                System.out.println("Quantity :" + book.getQuantity());
+                System.out.println("+++++++++++++++++++++++++++++");
+            }
         }
 
     }

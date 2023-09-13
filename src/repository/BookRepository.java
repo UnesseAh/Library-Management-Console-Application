@@ -224,7 +224,17 @@ public class BookRepository {
         String query = "SELECT book.id, book.title, book.author_id, book.isbn, book.quantity FROM book WHERE isbn IN (SELECT DISTINCT(book.isbn) FROM book INNER JOIN bookcopy ON book.id = bookcopy.book_id WHERE bookcopy.status = 'available')";
         PreparedStatement statement = dbConnection.getConnection().prepareStatement(query);
         ResultSet resultSet = statement.executeQuery();
-        return getBooks(availableBooks, resultSet);
+        while (resultSet.next()){
+            String title = resultSet.getString("title");
+            String authorName = getAuthorName(resultSet.getInt("author_id"));
+            String isbn = resultSet.getString("isbn");
+            int quantity = resultSet.getInt("quantity");
+
+            Book book = new Book(title, "authorId", isbn, quantity);
+
+            availableBooks.add(book);
+        }
+        return  availableBooks;
     }
     public List<Book> getAllBorrowedBooks() throws SQLException{
         List<Book> availableBooks = new ArrayList<>();
@@ -232,10 +242,6 @@ public class BookRepository {
         String query = "SELECT book.id, book.title, book.author_id, book.isbn, book.quantity FROM book WHERE isbn IN (SELECT DISTINCT(book.isbn) FROM book INNER JOIN bookcopy ON book.id = bookcopy.book_id WHERE bookcopy.status = 'not available')";
         PreparedStatement statement = dbConnection.getConnection().prepareStatement(query);
         ResultSet resultSet = statement.executeQuery();
-        return getBooks(availableBooks, resultSet);
-    }
-
-    private List<Book> getBooks(List<Book> availableBooks, ResultSet resultSet) throws SQLException {
         while (resultSet.next()){
             String title = resultSet.getString("title");
             String authorName = getAuthorName(resultSet.getInt("author_id"));
@@ -250,15 +256,26 @@ public class BookRepository {
     }
 
 
-    public List<Book> searchBook(String title) throws SQLException {
+    public List<Book> searchBook(String titleOrAuthor) throws SQLException {
         List<Book> foundedBooks = new ArrayList<>();
 
-        String query = "SELECT * FROM book WHERE title LIKE ?";
+        String query = "SELECT book.title, author.name, book.author_id, book.isbn, book.quantity FROM book INNER JOIN author ON author.id = book.author_id where book.title LIKE ? OR author.name LIKE ?";
 
-        PreparedStatement statement = dbConnection.getConnection().prepareStatement(query);
-        statement.setString(1, "%" + title + "%");
-        ResultSet resultSet = statement.executeQuery();
+        PreparedStatement stmt = dbConnection.getConnection().prepareStatement(query);
+        stmt.setString(1, "%" + titleOrAuthor + "%");
+        stmt.setString(2, "%" + titleOrAuthor + "%");
+        ResultSet resultSet = stmt.executeQuery();
 
-        return getBooks(foundedBooks, resultSet);
+        while (resultSet.next()){
+            String title = resultSet.getString("title");
+            String authorName = getAuthorName(resultSet.getInt("author_id"));
+            String isbn = resultSet.getString("isbn");
+            int quantity = resultSet.getInt("quantity");
+
+            Book book = new Book(title, authorName, isbn, quantity);
+
+            foundedBooks.add(book);
+        }
+        return  foundedBooks;
     }
 }
