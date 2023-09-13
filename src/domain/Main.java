@@ -24,12 +24,12 @@ public class Main {
     private static MemberRepository memberRepository = new MemberRepository(dbConnection);
     private static MemberService memberService = new MemberService(memberRepository);
 
-    private static ReservationRepository reservationRepository = new ReservationRepository(dbConnection);
-    private static ReservationService reservationService = new ReservationService(reservationRepository);
 
     private static CopyRepository copyRepository = new CopyRepository(dbConnection);
     private static CopyService copyService = new CopyService(copyRepository);
 
+    private static ReservationRepository reservationRepository = new ReservationRepository(dbConnection);
+    private static ReservationService reservationService = new ReservationService(reservationRepository, memberRepository, copyRepository, bookRepository);
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) throws SQLException {
@@ -194,7 +194,7 @@ public class Main {
         }else {
             for(Book book : foundedBooks) {
                 System.out.println("Title :" + book.getTitle());
-                System.out.println("Author ID :" + book.getAuthor());
+                System.out.println("Author :" + book.getAuthor());
                 System.out.println("ISBN :" + book.getIsbn());
                 System.out.println("Quantity :" + book.getQuantity());
                 System.out.println("+++++++++++++++++++++++++++++");
@@ -205,32 +205,17 @@ public class Main {
     private static void borrowBook() throws SQLException{
         System.out.println("Enter the ISBN of the book you want to borrow :");
         String isbn = scanner.nextLine();
+        System.out.println("Enter your member number :");
+        int memberNumber = scanner.nextInt();
+        scanner.nextLine();
 
-        if(bookService.isBookExists(isbn)){
-            System.out.println("Enter your member number :");
-            int memberNumber = scanner.nextInt();
-            scanner.nextLine();
-            if(memberService.isMemberExists(memberNumber)){
-                int memberId = memberService.getMemberId(memberNumber);
-                int copyId = copyService.getAvailableCopyId(isbn);
-                java.sql.Date borrowingDate = null;
-                java.sql.Date returnDate = null;
-
-                System.out.println("memberid :" + memberId);
-                System.out.println("copyid :" + copyId);
-                System.out.println("borrowingdate :" + borrowingDate);
-                System.out.println("return date :" + returnDate);
-
-                Reservation reservation = new Reservation(memberId, copyId, borrowingDate, returnDate);
-
-                System.out.println(reservationService.makeReservation(reservation).getCopyId());
-
-            }else {
-                System.out.println("member doesn't exist");
-            }
-        }else {
-            System.out.println("Book doesn't exists");
+        Reservation reservation = reservationService.makeReservation(isbn, memberNumber);
+        if (reservation != null) {
+            System.out.println("Reservation successful.");
+        } else {
+            System.out.println("Failed to make a reservation.");
         }
+
     }
     private static void returnBook() throws SQLException {
         System.out.println("Enter the ISBN of the book :");

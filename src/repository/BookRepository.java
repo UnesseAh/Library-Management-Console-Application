@@ -222,24 +222,16 @@ public class BookRepository {
         List<Book> availableBooks = new ArrayList<>();
 
         String query = "SELECT book.id, book.title, book.author_id, book.isbn, book.quantity FROM book WHERE isbn IN (SELECT DISTINCT(book.isbn) FROM book INNER JOIN bookcopy ON book.id = bookcopy.book_id WHERE bookcopy.status = 'available')";
-        PreparedStatement statement = dbConnection.getConnection().prepareStatement(query);
-        ResultSet resultSet = statement.executeQuery();
-        while (resultSet.next()){
-            String title = resultSet.getString("title");
-            String authorName = getAuthorName(resultSet.getInt("author_id"));
-            String isbn = resultSet.getString("isbn");
-            int quantity = resultSet.getInt("quantity");
-
-            Book book = new Book(title, "authorId", isbn, quantity);
-
-            availableBooks.add(book);
-        }
-        return  availableBooks;
+        return getBooks(availableBooks, query);
     }
     public List<Book> getAllBorrowedBooks() throws SQLException{
         List<Book> availableBooks = new ArrayList<>();
 
         String query = "SELECT book.id, book.title, book.author_id, book.isbn, book.quantity FROM book WHERE isbn IN (SELECT DISTINCT(book.isbn) FROM book INNER JOIN bookcopy ON book.id = bookcopy.book_id WHERE bookcopy.status = 'not available')";
+        return getBooks(availableBooks, query);
+    }
+
+    private List<Book> getBooks(List<Book> availableBooks, String query) throws SQLException {
         PreparedStatement statement = dbConnection.getConnection().prepareStatement(query);
         ResultSet resultSet = statement.executeQuery();
         while (resultSet.next()){
