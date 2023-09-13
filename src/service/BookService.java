@@ -14,6 +14,7 @@ public class BookService {
     }
 
     public void addBook(Book book) throws SQLException {
+
         if (bookRepository.getAuthorId(book.getAuthor()) < 1) {
             bookRepository.addAuthor(book.getAuthor());
         }
@@ -22,7 +23,7 @@ public class BookService {
         if (validateBook(book)) {
             bookRepository.addBook(book, authorId);
         }else {
-            System.out.println("The data you entered is not valid :\n Make sure the title is not empty, the quantity is greater than 0, the author exists and the ISBN starts with a number followed by a dash.");
+            System.out.println("The data you entered is not valid :\nMake sure the title is not empty, the quantity is greater than 0, the author exists and the ISBN starts with a number followed by a dash.");
         }
     }
 
@@ -45,6 +46,7 @@ public class BookService {
                 bookRepository.updateBook(book, authorId);
                 int bookId = bookRepository.getBookId(book.getIsbn());
                 bookRepository.addCopies(bookId, copiesToAdd);
+                System.out.println("Book has been updated successfully!");
             }else {
                 if(userQuantity < borrowedBooks){
                     System.out.println("Please enter a quantity number greater than : " + borrowedBooks);
@@ -52,6 +54,7 @@ public class BookService {
                     int copiesToDelete = totalCopies - userQuantity;
                     bookRepository.updateBook(book, authorId);
                     bookRepository.deleteCopies(copiesToDelete);
+                    System.out.println("Book has been updated successfully!");
                 }
             }
         } else {
@@ -74,9 +77,10 @@ public class BookService {
     public void deleteBook(String isbn) throws SQLException{
         boolean isISBNValid = isbn.matches("\\d-\\w{14}");
 
-        if(!isISBNValid){
+        if(isISBNValid){
             bookRepository.deleteCopies(isbn);
             bookRepository.insertReservationsIntoArchive(isbn);
+            System.out.println("Book deleted successfully!");
         }else {
             System.out.println("ISBN must start with a character followed by a dash.");
         }
@@ -90,7 +94,7 @@ public class BookService {
         return bookRepository.getAllBorrowedBooks();
     }
 
-    public List<Book> searchBook(String titleOrAuthor) throws SQLException{
+    public List<Book> searchBook(String titleOrAuthor) throws SQLException {
         return bookRepository.searchBook(titleOrAuthor);
     }
 

@@ -22,11 +22,7 @@ public class Main {
     private static BookService bookService = new BookService(bookRepository);
 
     private static MemberRepository memberRepository = new MemberRepository(dbConnection);
-    private static MemberService memberService = new MemberService(memberRepository);
-
-
     private static CopyRepository copyRepository = new CopyRepository(dbConnection);
-    private static CopyService copyService = new CopyService(copyRepository);
 
     private static ReservationRepository reservationRepository = new ReservationRepository(dbConnection);
     private static ReservationService reservationService = new ReservationService(reservationRepository, memberRepository, copyRepository, bookRepository);
@@ -136,7 +132,6 @@ public class Main {
 
             bookService.updateBook(book);
 
-            System.out.println("Book has been updated successfully!");
         }else {
             System.out.println("No book has the ISBN you entered.");
         }
@@ -147,7 +142,6 @@ public class Main {
 
         if(bookService.isBookExists(isbn)) {
             bookService.deleteBook(isbn);
-            System.out.println("Book deleted successfully!");
         }else {
             System.out.println("No book has the ISBN you entered.");
         }
@@ -163,12 +157,13 @@ public class Main {
     }
 
     private static void bookListLoop(List<Book> availableBooks) {
+        System.out.println("+++++++++++++++++++++++++++++");
         for(Book book : availableBooks){
-            System.out.println("Title : " + book.getTitle());
-            System.out.println("Author id : " + book.getAuthor());
-            System.out.println("ISBN : " + book.getIsbn());
-            System.out.println("Quantity : " + book.getQuantity());
-            System.out.println("+++++++++++++++++++++++++++++");
+            System.out.format("%-15s %s%n", "Title: ", book.getTitle());
+            System.out.format("%-15s %s%n", "Author: ", book.getAuthor());
+            System.out.format("%-15s %s%n", "ISBN: ", book.getIsbn());
+            System.out.format("%-15s %d%n", "Quantity:" , book.getQuantity());
+            System.out.println("++++++++++++++++++++++++++++++++++++++++");
         }
     }
 
@@ -192,11 +187,12 @@ public class Main {
         if(foundedBooks.isEmpty()){
             System.out.println("No books found.");
         }else {
+            System.out.println("+++++++++++++++++++++++++++++");
             for(Book book : foundedBooks) {
-                System.out.println("Title :" + book.getTitle());
-                System.out.println("Author :" + book.getAuthor());
-                System.out.println("ISBN :" + book.getIsbn());
-                System.out.println("Quantity :" + book.getQuantity());
+                System.out.format("%-15s %s%n", "Title:", book.getTitle());
+                System.out.format("%-15s %s%n", "Author:", book.getAuthor());
+                System.out.format("%-15s %s%n", "ISBN:", book.getIsbn());
+                System.out.format("%-15s %d%n", "Quantity:", book.getQuantity());
                 System.out.println("+++++++++++++++++++++++++++++");
             }
         }
@@ -229,7 +225,6 @@ public class Main {
 
     }
     private static void showStatistics() throws SQLException {
-        System.out.println("Statistics");
         copyRepository.displaystatistics();
     }
 }

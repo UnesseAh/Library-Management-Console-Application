@@ -240,7 +240,7 @@ public class BookRepository {
             String isbn = resultSet.getString("isbn");
             int quantity = resultSet.getInt("quantity");
 
-            Book book = new Book(title, "authorId", isbn, quantity);
+            Book book = new Book(title, authorName, isbn, quantity);
 
             availableBooks.add(book);
         }
