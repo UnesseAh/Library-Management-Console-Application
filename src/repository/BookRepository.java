@@ -113,8 +113,6 @@ public class BookRepository {
         }catch (SQLException e) {
             System.out.println("Something went wrong when trying to update book : " + e.getMessage());
         }
-
-
     }
 
     public void deleteCopies(int copiesToDelete){
@@ -152,13 +150,55 @@ public class BookRepository {
         }
     }
 
+    public void deleteCopies(String isbn) throws SQLException{
+        String deleteCopies = "delete from bookcopy WHERE book_id = (select id FROM book WHERE isbn = ?);";
+        String updateBookStatus = "UPDATE book SET deleted = 1 WHERE isbn = ?";
 
-    public void deleteBook(String isbn) throws SQLException{
-        String query = "DELETE FROM book WHERE isbn = ?";
+        try{
+            PreparedStatement updateCopiesStatement = dbConnection.getConnection().prepareStatement(deleteCopies);
+            updateCopiesStatement.setString(1, isbn);
+            updateCopiesStatement.executeUpdate();
+        }catch (SQLException e) {
+            System.out.println("Something went wrong when trying to update the status of the copies : " + e.getMessage());
+        }
 
-        PreparedStatement statement = dbConnection.getConnection().prepareStatement(query);
-        statement.setString(1, isbn);
-        statement.executeUpdate();
+        try{
+            PreparedStatement deleteStatement = dbConnection.getConnection().prepareStatement(updateBookStatus);
+            deleteStatement.setString(1, isbn);
+            deleteStatement.executeUpdate();
+        }catch (SQLException e) {
+            System.out.println("Something went wrong when trying to delete book : " + e.getMessage());
+        }
+    }
+
+    public void insertReservationsIntoArchive(String isbn) throws SQLException {
+        String selectQuery = "SELECT * FROM reservation WHERE copy_id in (SELECT bookcopy.id FROM bookcopy INNER JOIN book ON book.id = bookcopy.book_id WHERE book.isbn = ?)";
+
+        PreparedStatement selectStatement = dbConnection.getConnection().prepareStatement(selectQuery);
+        selectStatement.setString(1, isbn);
+        ResultSet resultSet = selectStatement.executeQuery();
+
+        String insertQuery = "INSERT INTO reservation_archive (copy_id, member_id, borrowing_date, return_date) VALUES (?, ?, ?, ?)";
+        PreparedStatement insertStatement = dbConnection.getConnection().prepareStatement(insertQuery);
+
+        while(resultSet.next()){
+            int bookCopy = resultSet.getInt("copy_id");
+            int memberId = resultSet.getInt("member_id");
+            Date borrowingDate = resultSet.getDate("borrowing_date");
+            Date returnDate = resultSet.getDate("return_date");
+
+            insertStatement.setInt(1, bookCopy );
+            insertStatement.setInt(2, memberId);
+            insertStatement.setDate(3, borrowingDate);
+            insertStatement.setDate(4, returnDate);
+            insertStatement.executeUpdate();
+        }
+
+        String deleteQuery = "DELETE FROM Reservation WHERE id in (SELECT id FROM reservation WHERE copy_id in (SELECT bookcopy.id FROM bookcopy INNER JOIN book ON book.id = bookcopy.book_id WHERE book.isbn = ?))";
+        PreparedStatement deleteStatement = dbConnection.getConnection().prepareStatement(deleteQuery);
+        deleteStatement.setString(1, isbn);
+        deleteStatement.executeUpdate();
+
     }
 
     public List<Book> getAllAvailableBooks() throws SQLException{

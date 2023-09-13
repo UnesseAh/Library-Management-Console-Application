@@ -67,15 +67,20 @@ public class BookService {
         return isTitleValid && isISBNValid && isQuantityValid;
     }
 
-
     public boolean isBookExists(String isbn) throws SQLException {
         boolean bookExists = bookRepository.isBookExists(isbn);
-//        boolean validISBN = !isbn.isEmpty() && isbn.matches("\\d-\\w{14}");
-        return bookExists  ? true : false;
+        return bookExists;
     }
 
     public void deleteBook(String isbn) throws SQLException{
-        bookRepository.deleteBook(isbn);
+        boolean isISBNValid = isbn.matches("\\d-\\w{14}");
+
+        if(!isISBNValid){
+            bookRepository.deleteCopies(isbn);
+            bookRepository.insertReservationsIntoArchive(isbn);
+        }else {
+            System.out.println("ISBN must start with a character followed by a dash.");
+        }
     }
 
     public List<Book> getAllAvailableBooks() throws SQLException {

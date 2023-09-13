@@ -125,7 +125,7 @@ public class Main {
             System.out.println("Enter the new title of the book:");
             String title = scanner.nextLine();
 
-            System.out.println("Enter the new name of the author:");
+            System.out.println("Enter the name of the author:");
             String author = scanner.nextLine();
 
             System.out.println("Enter the new quantity of the book:");
@@ -145,9 +145,9 @@ public class Main {
         System.out.println("Enter the ISBN of the book");
         String isbn = scanner.nextLine();
 
-        if(bookService.isBookExists(isbn)){
+        if(bookService.isBookExists(isbn)) {
             bookService.deleteBook(isbn);
-            System.out.println("book deleted successfully!");
+            System.out.println("Book deleted successfully!");
         }else {
             System.out.println("No book has the ISBN you entered.");
         }
