@@ -1,10 +1,10 @@
 package domain;
 
 import repository.*;
-import services.CopyService;
-import services.MemberService;
-import services.BookService;
-import services.ReservationService;
+import service.CopyService;
+import service.MemberService;
+import service.BookService;
+import service.ReservationService;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -158,26 +158,37 @@ public class Main {
         if(availableBooks.isEmpty()){
             System.out.println("No available books found.");
         }else {
-            for(Book book : availableBooks){
-                System.out.println("Title : " + book.getTitle());
-                System.out.println("Author id : " + book.getAuthor());
-                System.out.println("ISBN : " + book.getIsbn());
-                System.out.println("Quantity : " + book.getQuantity());
-                System.out.println("+++++++++++++++++++++++++++++");
-            }
+            bookListLoop(availableBooks);
         }
     }
-    private static void displayBorrowedBooks() throws SQLException {
-        System.out.println("Display all borrowed books");
+
+    private static void bookListLoop(List<Book> availableBooks) {
+        for(Book book : availableBooks){
+            System.out.println("Title : " + book.getTitle());
+            System.out.println("Author id : " + book.getAuthor());
+            System.out.println("ISBN : " + book.getIsbn());
+            System.out.println("Quantity : " + book.getQuantity());
+            System.out.println("+++++++++++++++++++++++++++++");
+        }
     }
+
+    private static void displayBorrowedBooks() throws SQLException {
+        List<Book> borrowedBooks = bookService.getAllBorrowedBooks();
+
+        if(borrowedBooks.isEmpty()){
+            System.out.println("No borrowed books are available");
+        }else {
+            bookListLoop(borrowedBooks);
+        }
+    }
+
     private static void searchBook() throws SQLException{
-        System.out.println("Do you want to search by title or author :");
-        System.out.println("1-Search by title");
-        System.out.println("2-Search by author");
+        System.out.println("Search for book by title or author : ");
 
         int searchChoice = scanner.nextInt();
         scanner.nextLine();
-        if(searchChoice == 1){
+
+        if( searchChoice == 1 ){
             System.out.println("Enter the title of the book you want to search for");
             String title = scanner.nextLine();
             scanner.close();
@@ -187,7 +198,7 @@ public class Main {
             if(foundedBooks.isEmpty()){
                 System.out.println("No books found.");
             }else {
-                for(Book book : foundedBooks){
+                for(Book book : foundedBooks) {
                     System.out.println("Title :" + book.getTitle());
                     System.out.println("Author ID :" + book.getAuthor());
                     System.out.println("ISBN :" + book.getIsbn());

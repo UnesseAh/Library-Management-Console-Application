@@ -7,6 +7,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.sql.Types.NULL;
+
 public class BookRepository {
     private DbConnection dbConnection;
 
@@ -42,9 +44,24 @@ public class BookRepository {
         if (resultSet.next()) {
             authorId = resultSet.getInt("ID");
         }
-
         return authorId;
     }
+
+    private String getAuthorName(int author_id) throws SQLException {
+        String query = "SELECT name FROM author WHERE id = ?";
+        PreparedStatement stmt = dbConnection.getConnection().prepareStatement(query);
+        stmt.setInt(1, author_id);
+        ResultSet resultSet = stmt.executeQuery();
+
+        String authorName = "";
+
+        if (resultSet.next()) {
+            authorName = resultSet.getString("name");
+        }
+
+        return authorName;
+    }
+
     public int getBookId(String isbn) throws SQLException {
         String query = "SELECT ID FROM book WHERE isbn = ?";
         PreparedStatement stmt = dbConnection.getConnection().prepareStatement(query);
@@ -150,7 +167,7 @@ public class BookRepository {
         }
     }
 
-    public void deleteCopies(String isbn) throws SQLException{
+    public void deleteCopies(String isbn) throws SQLException {
         String deleteCopies = "delete from bookcopy WHERE book_id = (select id FROM book WHERE isbn = ?);";
         String updateBookStatus = "UPDATE book SET deleted = 1 WHERE isbn = ?";
 
@@ -207,18 +224,29 @@ public class BookRepository {
         String query = "SELECT book.id, book.title, book.author_id, book.isbn, book.quantity FROM book WHERE isbn IN (SELECT DISTINCT(book.isbn) FROM book INNER JOIN bookcopy ON book.id = bookcopy.book_id WHERE bookcopy.status = 'available')";
         PreparedStatement statement = dbConnection.getConnection().prepareStatement(query);
         ResultSet resultSet = statement.executeQuery();
+        return getBooks(availableBooks, resultSet);
+    }
+    public List<Book> getAllBorrowedBooks() throws SQLException{
+        List<Book> availableBooks = new ArrayList<>();
+
+        String query = "SELECT book.id, book.title, book.author_id, book.isbn, book.quantity FROM book WHERE isbn IN (SELECT DISTINCT(book.isbn) FROM book INNER JOIN bookcopy ON book.id = bookcopy.book_id WHERE bookcopy.status = 'not available')";
+        PreparedStatement statement = dbConnection.getConnection().prepareStatement(query);
+        ResultSet resultSet = statement.executeQuery();
+        return getBooks(availableBooks, resultSet);
+    }
+
+    private List<Book> getBooks(List<Book> availableBooks, ResultSet resultSet) throws SQLException {
         while (resultSet.next()){
             String title = resultSet.getString("title");
-            int authorId = resultSet.getInt("author_id");
+            String authorName = getAuthorName(resultSet.getInt("author_id"));
             String isbn = resultSet.getString("isbn");
             int quantity = resultSet.getInt("quantity");
 
-            Book book = new Book(title, "name", isbn, quantity);
+            Book book = new Book(title, "authorId", isbn, quantity);
 
             availableBooks.add(book);
         }
         return  availableBooks;
-
     }
 
 
@@ -231,16 +259,6 @@ public class BookRepository {
         statement.setString(1, "%" + title + "%");
         ResultSet resultSet = statement.executeQuery();
 
-        while (resultSet.next()) {
-            String bookTitle = resultSet.getString("title");
-            int bookAuthorId = resultSet.getInt("author_id");
-            String bookISBN = resultSet.getString("isbn");
-            int bookQuantity = resultSet.getInt("quantity");
-
-            Book book = new Book(bookTitle, "name", bookISBN, bookQuantity);
-
-            foundedBooks.add(book);
-        }
-        return foundedBooks;
+        return getBooks(foundedBooks, resultSet);
     }
 }

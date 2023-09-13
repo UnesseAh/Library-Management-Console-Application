@@ -1,6 +1,5 @@
-package services;
+package service;
 
-import com.mysql.cj.callback.UsernameCallback;
 import domain.Book;
 import repository.BookRepository;
 
@@ -85,6 +84,10 @@ public class BookService {
 
     public List<Book> getAllAvailableBooks() throws SQLException {
         return bookRepository.getAllAvailableBooks();
+    }
+
+    public List<Book> getAllBorrowedBooks() throws SQLException {
+        return bookRepository.getAllBorrowedBooks();
     }
 
     public List<Book> searchBook(String title) throws SQLException{
